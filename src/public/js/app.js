@@ -1,1 +1,19 @@
-alert('hi')
+//frontEnd
+
+const socket = new WebSocket(`ws://${window.location.host}`);
+
+socket.addEventListener("open", () => {
+  console.log(`connected to Server ${window.location.host}`);
+});
+
+socket.addEventListener("message", (message) => {
+  console.log("New message:", message.data, "from the server");
+});
+
+socket.addEventListener("close", () => {
+  console.log("disconnected from server ");
+});
+
+setTimeout(() => {
+  socket.send("hello");
+}, 3000);
