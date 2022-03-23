@@ -11,7 +11,10 @@ html(lang="en")
             h1 it works!
         main
             ul 
-            form
-                input(type="text", placeholder="write a msg", required)
-                button Send
+            form#nick
+                input(type="text", placeholder="닉네임을 선택하세요", required)
+                button 저장
+            form#message
+                input(type="text", placeholder="메시지 내용", required)
+                button 보내기
         script(src="/public/js/app.js")

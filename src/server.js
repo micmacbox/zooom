@@ -23,10 +23,16 @@ wss.on("connection", (socket) => {
 
   socket.on("close", () => console.log("Disconnected from the browser"));
 
-  socket.on("message", (message, isBinary) => {
-    sockets.forEach((aSocket) =>
-      aSocket.send(isBinary ? message : message.toString())
-    );
+  socket.on("message", (msg) => {
+    const message = JSON.parse(msg);
+    switch (message.type) {
+      case "new_message":
+        sockets.forEach((aSocket) => {
+          aSocket.send(`${socket.nickname}: ${message.payload}`);
+        });
+      case "nickname":
+        socket["nickname"] = message.payload;
+    }
   });
 });
 server.listen(3000, () => console.log("server listen 3000"));
