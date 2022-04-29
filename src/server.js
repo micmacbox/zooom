@@ -15,6 +15,21 @@ const httpServer = http.createServer(app);
 /** localhost:3000/socket.io/socket.io.js */
 const wss = SocketIO(httpServer);
 
+function publicRooms() {
+  const {
+    sockets: {
+      adapter: { sids, rooms },
+    },
+  } = wss;
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if (sids.get(key) === undefined) {
+      publicRooms.push(key);
+    }
+  });
+  return publicRooms;
+}
+
 wss.on('connection', (socket) => {
   socket['nickname'] = 'Anon';
   socket.onAny((event) => {
@@ -24,11 +39,15 @@ wss.on('connection', (socket) => {
     socket.join(roomName);
     done();
     socket.to(roomName).emit('welcome', socket.nickname); //room에 있는 모든 사람들에게 emit
+    wss.sockets.emit('room_change', publicRooms());
   });
   socket.on('disconnecting', () => {
     socket.rooms.forEach((room) =>
       socket.to(room).emit('bye', socket.nickname)
     );
+  });
+  socket.on('disconnect', () => {
+    wss.sockets.emit('room_change', publicRooms());
   });
   socket.on('new_message', (msg, room, done) => {
     socket.to(room).emit('new_message', `${socket.nickname}: ${msg}`);
